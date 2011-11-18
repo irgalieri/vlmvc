@@ -42,7 +42,7 @@ if (!defined("APP_PATH")) {
 
 // System URL
 if (!defined("BASE_URL")) {
-    define("BASE_URL", "http://".$_SERVER["SERVER_NAME"]."/iwaymvc/");
+    define("BASE_URL", "http://".$_SERVER["SERVER_NAME"]."/vlmvc/");
 }
 
 if (!defined("FIRST_MODULE")) {
@@ -78,11 +78,11 @@ if (!defined("TYPE")) {
 
 // Logger
 if (!defined("LOGGER_FILE")) {
-    define("LOGGER_FILE", "/tmp/iwaymvc");
+    define("LOGGER_FILE", "/tmp/vlmvc");
 }
 
 if (!defined("LOGGER_MODULE")) {
-    define("LOGGER_MODULE", "IWAYMVC");
+    define("LOGGER_MODULE", "VLMVC");
 }
 
 if (!defined("LOGGER_FILE_QTY")) {
