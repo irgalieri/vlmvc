@@ -1,0 +1,8 @@
+RewriteEngine on
+
+RewriteCond $1 !^(index\.php|core|modules|views|libraries)
+
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/(.+)$ index.php?module=$1&controller=$2&method=$3&params=$4
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/$ index.php?module=$1&controller=$2&method=$3
+RewriteRule ^([^/]+)/([^/]+)/$ index.php?module=$1&controller=$2&method=index
+RewriteRule ^([^/]+)/$ index.php?module=$1&controller=$1&method=index [L]
