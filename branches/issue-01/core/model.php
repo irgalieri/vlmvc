@@ -44,21 +44,23 @@ abstract class Model
      * @return PDO
      */
     protected function _getDB(){
+        $config = getConfig();
+        
         if (is_null(self::$_db)) {
             $db = null;
-            switch (TYPE) {
+            switch ($config->db->type) {
                 case "mysql":
                     $db = new PDO( 
-                        'mysql:host='.HOST.';dbname='.DBNAME, 
-                        USERNAME,
-                        PWD,
+                        'mysql:host='.$config->db->host.';dbname='.$config->db->db_name, 
+                        $config->db->username,
+                        $config->db->password,
                         array(
                             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
                         )
                     );
                     break;
                 case "sqlite":
-                    $db = new PDO('sqlite:'.DBNAME);
+                    $db = new PDO('sqlite:'.$config->db->db_name);
                     break;
                 case "none":
                 default:

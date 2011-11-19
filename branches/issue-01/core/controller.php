@@ -193,10 +193,12 @@ class Controller
     {
 
         $filePath =$file.".php";
-
+        
+        $config = getConfig();
+        
         $fileCore = ROOT_PATH.$type."/".$filePath;
-        $fileModule = APP_PATH."modules/".$this->getModule()."/".$type."/".$filePath;
-        $fileProject = APP_PATH.$type."/".$filePath;
+        $fileModule = $config->application->path."modules/".$this->getModule()."/".$type."/".$filePath;
+        $fileProject = $config->application->path.$type."/".$filePath;
 
         if (is_file($fileModule)) {
             return $fileModule;
@@ -273,7 +275,8 @@ class Controller
     function redirect($uri = '', $method = 'location', $http_response_code = 302)
     {
         if (!preg_match('#^https?://#i', $uri)) {
-            $uri = BASE_URL.$uri;
+            $config = getConfig();
+            $uri = $config->urls->base_url.$uri;
         }
 
         switch ($method) {

@@ -39,13 +39,13 @@ class Logger
 {
     private $_filelogging_format = '%TIMESTAMP% [%MODULE%.%LOGTYPE%] %DATA%';
     private $_timestamp_format   = "Y.m.d H:i:s";
-    private $_module             = LOGGER_MODULE;
+    private $_module             = "";
     
     // Log file without .log extension, it is added later
-    private $_logfile            = LOGGER_FILE;    
+    private $_logfile            = "";    
     
     // Quantity of files saved
-    private $_historyQty         = LOGGER_FILE_QTY;
+    private $_historyQty         = "";
     
     private $_loggerLevel = LOGGER_LEVEL_INFO;
     
@@ -56,7 +56,13 @@ class Logger
      */
     public function __construct()
     {
-        switch(LOGGER_LEVEL) {
+        $config = getConfig();
+        
+        $this->_module = $config->logger->module;
+        $this->_logfile = $config->logger->file;
+        $this->_historyQty = $config->logger->file_qty;
+        
+        switch($config->logger->level) {
         case "DEBUG":
             $this->_loggerLevel = LOGGER_LEVEL_DEBUG;
             break;

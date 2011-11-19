@@ -25,9 +25,13 @@
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 
-require_once 'config/config_default.php';
+require_once 'core/constant.php';
+require_once 'core/utils.php';
+require_once ROOT_PATH.'core/config.php';
 require_once ROOT_PATH.'core/controller.php';
 require_once ROOT_PATH.'core/model.php';
+
+$config = Config::getInstance(APP_CONFIG_FILE);
 
 $module = filter_input(INPUT_GET, "module", FILTER_SANITIZE_STRING);
 $controller = filter_input(INPUT_GET, "controller", FILTER_SANITIZE_STRING);
@@ -41,6 +45,15 @@ $params = filter_input(INPUT_GET, "params", FILTER_SANITIZE_STRING);
  */
 function getInstance(){
     return Controller::getInstance();
+}
+
+/**
+ * Return de instance of Config Class
+ *
+ * @return Config
+ */
+function getConfig(){
+    return Config::getInstance();
 }
 
 /**
@@ -108,11 +121,11 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
 set_error_handler('iwaymvcErrorHandler');
 
 if ($module == "") {
-    $module = FIRST_MODULE;
-    $controller = FIRST_CONTROLLER;
+    $module = $config->urls->first_module;
+    $controller = $config->urls->first_controller;
 }
 
-$controllerFile = APP_PATH."modules/".$module."/controllers/".$controller.".php";
+$controllerFile = $config->application->path."modules/".$module."/controllers/".$controller.".php";
 
 if ( is_file($controllerFile) ){
     include_once $controllerFile;
@@ -155,12 +168,12 @@ if ( is_file($controllerFile) ){
                 break;
             }
         } else {
-            user_error("Don't exit method: ".$method);
+            user_error("Don't exit method: ".$method, E_USER_ERROR);
         }
     } else {
-        user_error("Don't exit class: ".$controller);
+        user_error("Don't exit class: ".$controller, E_USER_ERROR);
     }
 } else {
-    user_error("Don't exit file: ".$controllerFile);
+    user_error("Don't exit file: ".$controllerFile, E_USER_ERROR);
 }
 ?>
