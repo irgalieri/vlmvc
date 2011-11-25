@@ -81,11 +81,11 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
         break;
     case E_USER_ERROR:
         $errorType = "APPLICATION ERROR";
-        $errorDescription = error_string( $error );
+        $errorDescription = $error;
         break;
     case E_USER_WARNING:
         $errorType = "APPLICATION WARNING";
-        $errorDescription = error_string( $error );
+        $errorDescription = $error;
         break;
     case E_USER_NOTICE:
         //used for debugging

@@ -52,7 +52,15 @@ class Config
             $this->_configs = parse_ini_file($configFile, true);
         }
         
-        $this->_configs += parse_ini_file(ROOT_PATH."config/config_default.ini", true);
+        $configDefault = parse_ini_file(ROOT_PATH."config/config_default.ini", true);
+        
+        foreach ($this->_configs as $key => &$value) {
+            if (is_array($configDefault[$key])) {
+                if (isset ($configDefault[$key])) {
+                    $value += $configDefault[$key]; 
+                }
+            }
+        }
     }
     
     /**
@@ -66,7 +74,7 @@ class Config
     static public function getInstance($configFile = "")
     {
         if (is_null(self::$_intances)) {
-            self::$_intances = new Configurator($configFile);
+            self::$_intances = new Config($configFile);
         }
         
         return self::$_intances;
