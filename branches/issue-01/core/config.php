@@ -31,9 +31,11 @@
  * 
  * Is a singleton used to manager the config
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 class Config
@@ -44,6 +46,8 @@ class Config
     /**
      * Constructor
      * 
+     * @param String $configFile Config File
+     * 
      * @return Config
      */
     private function __construct($configFile)
@@ -52,7 +56,10 @@ class Config
             $this->_configs = parse_ini_file($configFile, true);
         }
         
-        $configDefault = parse_ini_file(ROOT_PATH."config/config_default.ini", true);
+        $configDefault = parse_ini_file(
+            ROOT_PATH."config/config_default.ini",
+            true
+        );
         
         foreach ($this->_configs as $key => &$value) {
             if (is_array($configDefault[$key])) {
@@ -67,7 +74,7 @@ class Config
      * Return the current instance or instance a new one, 
      * if you no defined the config file, load the default config.
      * 
-     * @param String $config_file Config File
+     * @param String $configFile Config File
      *
      * @return Config
      */
