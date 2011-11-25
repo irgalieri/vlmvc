@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+ * along with Very Light MVC Framework.  If not, see <http://www.gnu.org/licenses/>
  *
  * PHP VERSION 5
  *
@@ -29,23 +29,25 @@
 /**
  * Class Logger
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    German Nemes <gnemes@gmail.com>
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 class Logger
 {
     private $_filelogging_format = '%TIMESTAMP% [%MODULE%.%LOGTYPE%] %DATA%';
     private $_timestamp_format   = "Y.m.d H:i:s";
-    private $_module             = LOGGER_MODULE;
+    private $_module             = "";
     
     // Log file without .log extension, it is added later
-    private $_logfile            = LOGGER_FILE;    
+    private $_logfile            = "";    
     
     // Quantity of files saved
-    private $_historyQty         = LOGGER_FILE_QTY;
+    private $_historyQty         = "";
     
     private $_loggerLevel = LOGGER_LEVEL_INFO;
     
@@ -56,7 +58,13 @@ class Logger
      */
     public function __construct()
     {
-        switch(LOGGER_LEVEL) {
+        $config = getConfig();
+        
+        $this->_module = $config->logger->module;
+        $this->_logfile = $config->logger->file;
+        $this->_historyQty = $config->logger->file_qty;
+        
+        switch($config->logger->level) {
         case "DEBUG":
             $this->_loggerLevel = LOGGER_LEVEL_DEBUG;
             break;
@@ -86,7 +94,7 @@ class Logger
      */
     private function _putLog($sLogType, $sStr)
     {
-        if($this->_logfile != "" && !is_null($this->_logfile)) {	
+        if ($this->_logfile != "" && !is_null($this->_logfile)) {	
             $this->_rotateLogFile();
             $data = $this->_formatMessage($sLogType, $sStr);
             $this->_writeToFile($data);
@@ -100,8 +108,9 @@ class Logger
      * 
      * @return void
      */
-    private function _writeToFile($data) {
-        error_log( $data . "\n", 3, $this->_logfile.".log");
+    private function _writeToFile($data)
+    {
+        error_log($data . "\n", 3, $this->_logfile.".log");
     }
 
     /**
@@ -112,7 +121,8 @@ class Logger
      * 
      * @return string 
      */
-    private function _formatMessage($sLogType, $sStr) {
+    private function _formatMessage($sLogType, $sStr)
+    {
         $data = $this->_filelogging_format;
         $data = str_replace("%TIMESTAMP%", date($this->_timestamp_format), $data);
         $data = str_replace("%MODULE%", $this->_module, $data);
@@ -127,15 +137,19 @@ class Logger
      * 
      * @return void
      */
-    private function _rotateLogFile() {
+    private function _rotateLogFile()
+    {
         if (file_exists($this->_logfile.".log")) {
             // Checks if the filesize is larger than 1gb, if it is so, rotate files
             if (filesize($this->_logfile.".log")/1024/1024/1024 > 1) {
-                for($i = $this->_historyQty; $i > 0; $i--) {
+                for ($i = $this->_historyQty; $i > 0; $i--) {
                     if (file_exists($this->_logfile."_".$i.".log")) {
                         if ($i != $this->_historyQty) {
                             $j = $i + 1;
-                            copy($this->_logfile."_".$i.".log", $this->_logfile."_".$j.".log");
+                            copy(
+                                $this->_logfile."_".$i.".log",
+                                $this->_logfile."_".$j.".log"
+                            );
                         }
                         unlink($this->_logfile."_".$i.".log");
                     }
@@ -156,7 +170,7 @@ class Logger
     public function logDebug($sStr = '')
     {
         if ($this->_loggerLevel <= LOGGER_LEVEL_DEBUG) {
-            $this->_putLog('DEBUG',$sStr);
+            $this->_putLog('DEBUG', $sStr);
         }
     }
     
@@ -170,7 +184,7 @@ class Logger
     public function logInfo($sStr = '')
     {
         if ($this->_loggerLevel <= LOGGER_LEVEL_INFO) {
-            $this->_putLog('INFO',$sStr);
+            $this->_putLog('INFO', $sStr);
         }
     }    
     

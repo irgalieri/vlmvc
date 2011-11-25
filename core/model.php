@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+ * along with Very Light MVC Framework.  If not, see <http://www.gnu.org/licenses/>
  *
  * PHP VERSION 5
  *
@@ -28,9 +28,11 @@
 /**
  * Base Model
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 abstract class Model
@@ -43,26 +45,29 @@ abstract class Model
      *
      * @return PDO
      */
-    protected function _getDB(){
+    protected function getDB()
+    {
+        $config = getConfig();
+        
         if (is_null(self::$_db)) {
             $db = null;
-            switch (TYPE) {
-                case "mysql":
-                    $db = new PDO( 
-                        'mysql:host='.HOST.';dbname='.DBNAME, 
-                        USERNAME,
-                        PWD,
-                        array(
-                            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
-                        )
-                    );
-                    break;
-                case "sqlite":
-                    $db = new PDO('sqlite:'.DBNAME);
-                    break;
-                case "none":
-                default:
-                    break;
+            switch ($config->db->type) {
+            case "mysql":
+                $db = new PDO(
+                    'mysql:host='.$config->db->host.';dbname='.$config->db->db_name, 
+                    $config->db->username,
+                    $config->db->password,
+                    array(
+                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                    )
+                );
+                break;
+            case "sqlite":
+                $db = new PDO('sqlite:'.$config->db->db_name);
+                break;
+            case "none":
+            default:
+                break;
             }
             
             if (!is_null($db)) {
@@ -129,47 +134,52 @@ abstract class Model
     public function page( $sql, $pageNumber = 1,$size = 10)
     {
         switch (TYPE) {
-            case "mysql":
-                $sqlTotal = <<<EOQ
+        case "mysql":
+            $sqlTotal = <<<EOQ
 SELECT count(1) as total
   FROM ({$sql}) a
 EOQ;
-                $result = $this->query($sqlTotal);
-                $total = $result[0]["total"];
-                
-                if ($size == 0) {
-                    $size = $total;
-                }
-                
-                if($pageNumber <= 1) {
-                    $pageNumber = 1;
-                    $sqlPage = <<<EOQ
+            $result = $this->query($sqlTotal);
+            $total = $result[0]["total"];
+
+            if ($size == 0) {
+                $size = $total;
+            }
+
+            if ($pageNumber <= 1) {
+                $pageNumber = 1;
+                $sqlPage = <<<EOQ
 SELECT a.*
   FROM ({$sql}) a
-  LIMIT 0, {$size}
+ LIMIT 0, {$size}
 EOQ;
-                    
-                    $sql .= " ";
-                } else {
-                    $begin = ($pageNumber-1) * $size;
-                    $sqlPage = <<<EOQ
+
+                $sql .= " ";
+            } else {
+                $begin = ($pageNumber-1) * $size;
+                $sqlPage = <<<EOQ
 SELECT a.*
   FROM ({$sql}) a
-  LIMIT {$begin}, {$size}
+ LIMIT {$begin}, {$size}
 EOQ;
-                }
-                
-                $result = $this->query($sqlPage);
-                
-                $data['records'] = $result;
-                $data['pages'] = is_int($total / $size)? $total / $size : (int)(($total / $size) +1);
-                return $data;
-                break;
-            case "none":
-                break;
-            default:
-                return $this->query($sql);
-                break;
+            }
+
+            $result = $this->query($sqlPage);
+
+            $data['records'] = $result;
+            
+            if (is_int($total / $size)) {
+                $data['pages'] = $total / $size;
+            } else {
+                $data['pages'] = (int)(($total / $size) +1);
+            }
+            return $data;
+            break;
+        case "none":
+            break;
+        default:
+            return $this->query($sql);
+            break;
         }
     }
 
@@ -178,7 +188,8 @@ EOQ;
      *
      * @return void
      */
-    public function  __destruct() {
+    public function  __destruct()
+    {
         if (!is_null(self::$_db)) {
             $errorInfo = $this->_getDB()->errorInfo();
             if (is_null($errorInfo[1])) {

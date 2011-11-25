@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+ * along with Very Light MVC Framework.  If not, see <http://www.gnu.org/licenses/>
  *
  * PHP VERSION 5
  *
@@ -25,9 +25,13 @@
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 
-require_once 'config/config_default.php';
+require_once 'core/constant.php';
+require_once 'core/utils.php';
+require_once ROOT_PATH.'core/config.php';
 require_once ROOT_PATH.'core/controller.php';
 require_once ROOT_PATH.'core/model.php';
+
+$config = Config::getInstance(APP_CONFIG_FILE);
 
 $module = filter_input(INPUT_GET, "module", FILTER_SANITIZE_STRING);
 $controller = filter_input(INPUT_GET, "controller", FILTER_SANITIZE_STRING);
@@ -39,8 +43,19 @@ $params = filter_input(INPUT_GET, "params", FILTER_SANITIZE_STRING);
  *
  * @return Controller
  */
-function getInstance(){
+function getInstance()
+{
     return Controller::getInstance();
+}
+
+/**
+ * Return de instance of Config Class
+ *
+ * @return Config
+ */
+function getConfig()
+{
+    return Config::getInstance();
 }
 
 /**
@@ -54,7 +69,8 @@ function getInstance(){
  *
  * @return void
  */
-function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
+function iwaymvcErrorHandler($type, $error, $file, $line, $context)
+{
     $controller = getInstance();
 
     switch( $type ) {
@@ -68,11 +84,11 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
         break;
     case E_USER_ERROR:
         $errorType = "APPLICATION ERROR";
-        $errorDescription = error_string( $error );
+        $errorDescription = $error;
         break;
     case E_USER_WARNING:
         $errorType = "APPLICATION WARNING";
-        $errorDescription = error_string( $error );
+        $errorDescription = $error;
         break;
     case E_USER_NOTICE:
         //used for debugging
@@ -99,8 +115,12 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
     
     if ($errorDescription != "") {
         $controller->loadLibrary("Logger");
-        $controller->logger->logError("ERROR TYPE ::".$errorType." Set logger in debug for more info.");
-        $controller->logger->logDebug("FILE::".$file." LINE::".$line." DESC::".$errorDescription);
+        $controller->logger->logError(
+            "ERROR TYPE ::".$errorType." Set logger in debug for more info."
+        );
+        $controller->logger->logDebug(
+            "FILE::".$file." LINE::".$line." DESC::".$errorDescription
+        );
         $controller->setErrorMessage($errorDescription);
     }
 }
@@ -108,13 +128,14 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
 set_error_handler('iwaymvcErrorHandler');
 
 if ($module == "") {
-    $module = FIRST_MODULE;
-    $controller = FIRST_CONTROLLER;
+    $module = $config->urls->first_module;
+    $controller = $config->urls->first_controller;
 }
 
-$controllerFile = APP_PATH."modules/".$module."/controllers/".$controller.".php";
+$controllerFile = $config->application->path;
+$controllerFile .= "modules/".$module."/controllers/".$controller.".php";
 
-if ( is_file($controllerFile) ){
+if (is_file($controllerFile)) {
     include_once $controllerFile;
     
     $controller = str_replace("_", " ", $controller);
@@ -122,7 +143,7 @@ if ( is_file($controllerFile) ){
     $controller = str_replace(" ", "_", $controller);
     
     if (!empty ($params)) {
-        $params = explode("/",$params);
+        $params = explode("/", $params);
     } else {
         $params = array();
     }
@@ -136,7 +157,7 @@ if ( is_file($controllerFile) ){
             $method = "index";
         }
         
-        if (method_exists($controllerClass,$method)) {
+        if (method_exists($controllerClass, $method)) {
             switch (count($params)){
             case 0:
                 $controllerClass->{$method}();
@@ -155,12 +176,12 @@ if ( is_file($controllerFile) ){
                 break;
             }
         } else {
-            user_error("Don't exit method: ".$method);
+            user_error("Don't exit method: ".$method, E_USER_ERROR);
         }
     } else {
-        user_error("Don't exit class: ".$controller);
+        user_error("Don't exit class: ".$controller, E_USER_ERROR);
     }
 } else {
-    user_error("Don't exit file: ".$controllerFile);
+    user_error("Don't exit file: ".$controllerFile, E_USER_ERROR);
 }
 ?>

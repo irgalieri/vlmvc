@@ -25,5 +25,38 @@
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 
-echo $message;
+/**
+ * Convert Array to Object
+ *
+ * @param mixed $element element
+ * 
+ * @return Object
+ */
+function array2Object($element)
+{
+    if (is_array($element)) {
+        return (object) array_map(__FUNCTION__, $element);
+    } else {
+        return $element;
+    }
+}
+
+/**
+ * Convert Object to Array
+ *
+ * @param mixed $element Element
+ * 
+ * @return array
+ */
+function object2Array($element)
+{
+    if (is_object($element)) {
+        $element = get_object_vars($element);
+    }
+    if (is_array($element)) {
+        return array_map(__FUNCTION__, $element);
+    } else {
+        return $element;
+    }
+}
 ?>
