@@ -31,9 +31,9 @@ if (!defined("APP_CONFIG_FILE")) {
     define("APP_CONFIG_FILE", "");
 }
 define("ROOT_PATH", realpath(dirname(__FILE__)."/../")."/");
-define("LOGGER_LEVEL_DEBUG"  , 1);
-define("LOGGER_LEVEL_INFO"   , 2);
+define("LOGGER_LEVEL_DEBUG", 1);
+define("LOGGER_LEVEL_INFO", 2);
 define("LOGGER_LEVEL_WARNING", 4);
-define("LOGGER_LEVEL_ERROR"  , 8);
-define("LOGGER_LEVEL_OFF"    , 16);
+define("LOGGER_LEVEL_ERROR", 8);
+define("LOGGER_LEVEL_OFF", 16);
 ?>
