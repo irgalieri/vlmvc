@@ -43,7 +43,8 @@ $params = filter_input(INPUT_GET, "params", FILTER_SANITIZE_STRING);
  *
  * @return Controller
  */
-function getInstance(){
+function getInstance()
+{
     return Controller::getInstance();
 }
 
@@ -52,7 +53,8 @@ function getInstance(){
  *
  * @return Config
  */
-function getConfig(){
+function getConfig()
+{
     return Config::getInstance();
 }
 
@@ -67,7 +69,8 @@ function getConfig(){
  *
  * @return void
  */
-function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
+function iwaymvcErrorHandler($type, $error, $file, $line, $context)
+{
     $controller = getInstance();
 
     switch( $type ) {
@@ -112,8 +115,12 @@ function iwaymvcErrorHandler($type, $error, $file, $line, $context) {
     
     if ($errorDescription != "") {
         $controller->loadLibrary("Logger");
-        $controller->logger->logError("ERROR TYPE ::".$errorType." Set logger in debug for more info.");
-        $controller->logger->logDebug("FILE::".$file." LINE::".$line." DESC::".$errorDescription);
+        $controller->logger->logError(
+            "ERROR TYPE ::".$errorType." Set logger in debug for more info."
+        );
+        $controller->logger->logDebug(
+            "FILE::".$file." LINE::".$line." DESC::".$errorDescription
+        );
         $controller->setErrorMessage($errorDescription);
     }
 }
@@ -125,9 +132,10 @@ if ($module == "") {
     $controller = $config->urls->first_controller;
 }
 
-$controllerFile = $config->application->path."modules/".$module."/controllers/".$controller.".php";
+$controllerFile = $config->application->path;
+$controllerFile .= "modules/".$module."/controllers/".$controller.".php";
 
-if ( is_file($controllerFile) ){
+if (is_file($controllerFile)) {
     include_once $controllerFile;
     
     $controller = str_replace("_", " ", $controller);
@@ -135,7 +143,7 @@ if ( is_file($controllerFile) ){
     $controller = str_replace(" ", "_", $controller);
     
     if (!empty ($params)) {
-        $params = explode("/",$params);
+        $params = explode("/", $params);
     } else {
         $params = array();
     }
@@ -149,7 +157,7 @@ if ( is_file($controllerFile) ){
             $method = "index";
         }
         
-        if (method_exists($controllerClass,$method)) {
+        if (method_exists($controllerClass, $method)) {
             switch (count($params)){
             case 0:
                 $controllerClass->{$method}();
