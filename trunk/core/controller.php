@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+ * along with Very Light MVC Framework.  If not, see <http://www.gnu.org/licenses/>
  *
  * PHP VERSION 5
  *
@@ -28,9 +28,11 @@
 /**
  * Class Base Controller
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 class Controller
@@ -99,13 +101,13 @@ class Controller
      */
     public function loadModel($name = "",$params = array())
     {
-        $name_variable = strtolower($name);
+        $nameVariable = strtolower($name);
 
-        if (isset($this->_models[$name_variable])) {
+        if (isset($this->_models[$nameVariable])) {
             return true;
         }
 
-        $file_model = $this->_loadFile($name_variable, "models");
+        $file_model = $this->_loadFile($nameVariable, "models");
 
         if ($file_model == "") {
             return false;
@@ -115,20 +117,24 @@ class Controller
 
         switch (count($params)){
         case 0:
-            $this->_models[$name_variable] = new $name();
+            $this->_models[$nameVariable] = new $name();
             break;
         case 1:
-            $this->_models[$name_variable] = new $name($params[0]);
+            $this->_models[$nameVariable] = new $name($params[0]);
             break;
         case 2:
-            $this->_models[$name_variable] = new $name($params[0],$params[1]);
+            $this->_models[$nameVariable] = new $name($params[0],$params[1]);
             break;
         case 3:
-            $this->_models[$name_variable] = new $name($params[0],$params[1],$params[2]);
+            $this->_models[$nameVariable] = new $name(
+                $params[0],
+                $params[1],
+                $params[2]
+            );
             break;
         default :
             $reflection = new ReflectionClass($name);
-            $this->_models[$name_variable] = $reflection->newInstanceArgs($params);
+            $this->_models[$nameVariable] = $reflection->newInstanceArgs($params);
             break;
         }
 
@@ -145,13 +151,13 @@ class Controller
      */    
     public function loadLibrary($name = "", $params = array())
     {
-        $name_variable = strtolower($name);
+        $nameVariable = strtolower($name);
         
-        if (isset($this->_libraries[$name_variable])) {
+        if (isset($this->_libraries[$nameVariable])) {
             return true;
         }
         
-        $file_lib = $this->_loadFile($name_variable, "libraries"); 
+        $file_lib = $this->_loadFile($nameVariable, "libraries"); 
         
         if ($file_lib == "") {
             return false;
@@ -161,20 +167,24 @@ class Controller
         
         switch (count($params)){
         case 0:
-            $this->_libraries[$name_variable] = new $name();
+            $this->_libraries[$nameVariable] = new $name();
             break;
         case 1:
-            $this->_libraries[$name_variable] = new $name($params[0]);
+            $this->_libraries[$nameVariable] = new $name($params[0]);
             break;
         case 2:
-            $this->_libraries[$name_variable] = new $name($params[0],$params[1]);
+            $this->_libraries[$nameVariable] = new $name($params[0],$params[1]);
             break;
         case 3:
-            $this->_libraries[$name_variable] = new $name($params[0],$params[1],$params[2]);
+            $this->_libraries[$nameVariable] = new $name(
+                $params[0],
+                $params[1],
+                $params[2]
+            );
             break;
         default :
-            $reflection = new ReflectionClass($name);
-            $this->_libraries[$name_variable] = $reflection->newInstanceArgs($params);
+            $rclass = new ReflectionClass($name);
+            $this->_libraries[$nameVariable] = $rclass->newInstanceArgs($params);
             break;
         }
 
@@ -193,10 +203,13 @@ class Controller
     {
 
         $filePath =$file.".php";
-
+        
+        $config = getConfig();
+        
         $fileCore = ROOT_PATH.$type."/".$filePath;
-        $fileModule = APP_PATH."modules/".$this->getModule()."/".$type."/".$filePath;
-        $fileProject = APP_PATH.$type."/".$filePath;
+        $fileModule = $config->application->path;
+        $fileModule .= "modules/".$this->getModule()."/".$type."/".$filePath;
+        $fileProject = $config->application->path.$type."/".$filePath;
 
         if (is_file($fileModule)) {
             return $fileModule;
@@ -207,8 +220,16 @@ class Controller
         } else {
             $this->setErrorMessage("Unable to load the file ".$filePath);
             $this->loadLibrary("logger");
-            $this->logger->logError("The file does not exist. Set Logger in the debug mode to more detail.");
-            $this->logger->logDebug("File name: ".$filePath." Type File: ".$type);
+            
+            $errorStr = "The file does not exist. Set Logger ";
+            $errorStr .= "in the debug mode to more detail.";
+            
+            $this->logger->logError(
+                $errorStr
+            );
+            $this->logger->logDebug(
+                "File name: ".$filePath." Type File: ".$type
+            );
         }
 
         return '';
@@ -273,16 +294,17 @@ class Controller
     function redirect($uri = '', $method = 'location', $http_response_code = 302)
     {
         if (!preg_match('#^https?://#i', $uri)) {
-            $uri = BASE_URL.$uri;
+            $config = getConfig();
+            $uri = $config->urls->base_url.$uri;
         }
 
         switch ($method) {
-            case 'refresh' :
-                header("Refresh:0;url=" . $uri);
-                break;
-            default :
-                header("Location: " . $uri, true, $http_response_code);
-                break;
+        case 'refresh' :
+            header("Refresh:0;url=" . $uri);
+            break;
+        default :
+            header("Location: " . $uri, true, $http_response_code);
+            break;
         }
         exit;
     }
@@ -352,7 +374,13 @@ class Controller
      */
     public function message($codError = 0, $message ="En Construccion")
     {        
-        $this->loadView("error_page", array ("code" => $codError,"message" => base64_decode($message)));
+        $this->loadView(
+            "error_page", 
+            array (
+                "code" => $codError,
+                "message" => base64_decode($message)
+            )
+        );
     }
 }
 ?>

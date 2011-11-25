@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+ * along with Very Light MVC Framework.  If not, see <http://www.gnu.org/licenses/>
  *
  * PHP VERSION 5
  *
@@ -28,9 +28,11 @@
 /**
  * Class Session 
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 class Session
@@ -89,7 +91,8 @@ class Session
      * 
      * @return void
      */
-    public function destroySession(){
+    public function destroySession()
+    {
         unset($_SESSION[$this->_getToken()]);
     }
     
