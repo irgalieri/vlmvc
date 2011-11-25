@@ -28,9 +28,11 @@
 /**
  * Class Session 
  *
+ * @category  FrontEnd
  * @package   VLMVC
  * @author    Ignacio R. Galieri <irgalieri@gmail.com>
  * @copyright 2011 Ignacio R. Galieri
+ * @license   GNU GPL v3
  * @link      http://ar.linkedin.com/pub/ignacio-rodrigo-galieri/a/22/bb2
  */
 class Session
@@ -89,7 +91,8 @@ class Session
      * 
      * @return void
      */
-    public function destroySession(){
+    public function destroySession()
+    {
         unset($_SESSION[$this->_getToken()]);
     }
     
