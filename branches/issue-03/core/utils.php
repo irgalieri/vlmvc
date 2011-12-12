@@ -59,4 +59,24 @@ function object2Array($element)
         return $element;
     }
 }
+
+/**
+ * Return de instance of Controller Class
+ *
+ * @return Controller
+ */
+function getInstance()
+{
+    return Controller::getInstance();
+}
+
+/**
+ * Return de instance of Config Class
+ *
+ * @return Config
+ */
+function getConfig()
+{
+    return Config::getInstance();
+}
 ?>
