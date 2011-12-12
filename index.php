@@ -27,9 +27,11 @@
 
 require_once 'core/constant.php';
 require_once 'core/utils.php';
-require_once ROOT_PATH.'core/config.php';
-require_once ROOT_PATH.'core/controller.php';
-require_once ROOT_PATH.'core/model.php';
+require_once 'core/config.php';
+require_once 'core/errorhandler.php';
+require_once 'core/controller.php';
+
+ErrorHandler::register();
 
 $config = Config::getInstance(APP_CONFIG_FILE);
 
@@ -37,95 +39,6 @@ $module = filter_input(INPUT_GET, "module", FILTER_SANITIZE_STRING);
 $controller = filter_input(INPUT_GET, "controller", FILTER_SANITIZE_STRING);
 $method = filter_input(INPUT_GET, "method", FILTER_SANITIZE_STRING);
 $params = filter_input(INPUT_GET, "params", FILTER_SANITIZE_STRING);
-
-/**
- * Return de instance of Controller Class
- *
- * @return Controller
- */
-function getInstance()
-{
-    return Controller::getInstance();
-}
-
-/**
- * Return de instance of Config Class
- *
- * @return Config
- */
-function getConfig()
-{
-    return Config::getInstance();
-}
-
-/**
- * Error Handler
- *
- * @param String $type    Type
- * @param String $error   Error
- * @param String $file    File
- * @param String $line    Line
- * @param String $context Context
- *
- * @return void
- */
-function iwaymvcErrorHandler($type, $error, $file, $line, $context)
-{
-    $controller = getInstance();
-
-    switch( $type ) {
-    case E_WARNING:
-        $errorType = 'SYSTEM WARNING';
-        $errorDescription = $error;
-        break;
-    case E_NOTICE:
-        $errorType = 'SYSTEM NOTICE';
-        $errorDescription = $error;
-        break;
-    case E_USER_ERROR:
-        $errorType = "APPLICATION ERROR";
-        $errorDescription = $error;
-        break;
-    case E_USER_WARNING:
-        $errorType = "APPLICATION WARNING";
-        $errorDescription = $error;
-        break;
-    case E_USER_NOTICE:
-        //used for debugging
-        $errorType = 'DEBUG';
-        $errorDescription = $error;
-        break;
-    default:
-        if (defined("E_DEPRECATED")) {
-            if ($type == E_DEPRECATED) {
-                //para no tenr problemas con la compatibilidad
-                $errorType = 'PHP DEPRECATED';
-                $errorDescription = $error;
-            } else {
-                //shouldn't happen, just display the error just in case
-                $errorType = 'UNKNOWN';
-                $errorDescription = $error;
-            }
-        } else {
-            //shouldn't happen, just display the error just in case
-            $errorType = 'UNKNOWN';
-            $errorDescription = $error;
-        }
-    }
-    
-    if ($errorDescription != "") {
-        $controller->loadLibrary("Logger");
-        $controller->logger->logError(
-            "ERROR TYPE ::".$errorType." Set logger in debug for more info."
-        );
-        $controller->logger->logDebug(
-            "FILE::".$file." LINE::".$line." DESC::".$errorDescription
-        );
-        $controller->setErrorMessage($errorDescription);
-    }
-}
-
-set_error_handler('iwaymvcErrorHandler');
 
 if ($module == "") {
     $module = $config->urls->first_module;
